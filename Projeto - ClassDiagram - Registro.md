@@ -1,98 +1,109 @@
 ---
 config:
-  theme: neo
-  look: handDrawn
+  theme: mc
+  look: neo
 ---
 classDiagram
-    namespace GUI {
-        class TelaRegistro { 
-            + abrirSecaoInfoPessoais() : void
-            + abrirSecaoInfoAcademicas() : void
-            + abrirSecaoInfoPesquisas() : void
-            + abrirSecaoInteresses() : void
-            + abrirConsentimentoLGPD() : void
+direction TB
+	namespace GUI {
+        class TelaRegistroPesquisadorEmpreendedor {
+	        + abrirSecaoInfoPessoais() : void
+	        + abrirSecaoInfoAcademicas() : void
+	        + abrirSecaoInfoPesquisas() : void
+	        + abrirSecaoInteresses() : void
+	        + abrirConsentimentoLGPD() : void
+	        + efetuarRegistro() : void
+	        + mostrarErro(String mensagem) : void
+	        + efetuarRegistro(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
         }
-    }
-    namespace Negocio {
+	}
+	namespace Negocio {
         class Fachada {
-            + efetuarRegistro() : void
-            + mostrarErro(mensagem) : void
-        }   
-        class ControladorRegistro {  
-            + validarDados(email, cpf) : boolean
-            + efetuarRegistro() : void
+	        + efetuarRegistro(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
+	        + mostrarErro(mensagem) : void
+        }
+        class ControladorRegistroPesquisadorEmpreendedor {
+	        + validarDados(String email, String cpf) : boolean
+	        + efetuarRegistro() : void
         }
         class CadastroPesquisa {
-            + cadastrarPesquisa() : void
+	        + cadastrarPesquisa(Pesquisa pesquisa) : void
         }
-        class CadastroPesquisadorEmpreendedor { 
-            + cadastrarPesquisadorEmpreendedor() : void    
+        class CadastroPesquisadorEmpreendedor {
+	        + cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
         }
-        class Pesquisa { 
-            +String titulo
-            +String descricao
-            +String area
-            +String maturidade
-            +String impactos
-            +String[] conexoesODS
+        class Pesquisa {
+	        +String titulo
+	        +String descricao
+	        +String area
+	        +String maturidade
+	        +String impactos
+	        +String[] conexoesODS
+	        +PesquisadorEmpreendedor[] pesquisadores
         }
-        class PesquisadorEmpreendedor { 
-            +String nomeCompleto
-            +String cpf
-            +String email
-            +String telefone
-            +String endereco
-            +String detalhesGraduacao
-            +String detalhesPosGraduacao
-            +String expProfissional
-            +String curLates
-            +boolean expEmpreen
-            +boolean interesseEmpresa
-            +boolean interesseTransferenciaTecnologia
-            +boolean disponibilidadeCapacitacao 
-            +Pesquisa[] pesquisas
+        class PesquisadorEmpreendedor {
+	        +String nomeCompleto
+	        +String cpf
+	        +String email
+	        +String telefone
+	        +String endereco
+	        +String detalhesGraduacao
+	        +String detalhesPosGraduacao
+	        +String expProfissional
+	        +String curLates
+	        +boolean expEmpreen
+	        +boolean interesseEmpresa
+	        +boolean interesseTransferenciaTecnologia
+	        +boolean disponibilidadeCapacitacao
+	        +Pesquisa[] pesquisas
         }
-        class FachadaSubsistemaServicoEmail {  
-            + enviarEmailConfirmacao(email) : void
+        class FachadaSubsistemaServicoEmail {
+	        + enviarEmailConfirmacao(String email) : void
         }
-    }
-    namespace Interfaces {
-        class ISubsistemaServicoEmail {  
-            + enviarEmailConfirmacao(email) : void
+	}
+	namespace Interfaces {
+        class ISubsistemaServicoEmail {
+	        + enviarEmailConfirmacao(String email) : void
         }
         class IRepositorioPesquisa {
-            + cadastrarPesquisa() : void
+	        + cadastrarPesquisa(Pesquisa pesquisa) : void
         }
         class IRepositorioPesquisadorEmpreendedor {
-            + cadastrarPesquisa() : void
+	        + cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
         }
-    }
-    namespace Dados {
+	}
+	namespace Dados {
         class RepositorioPesquisaBDR {
-            + cadastrarPesquisa() : void
+	        + cadastrarPesquisa(Pesquisa pesquisa) : void
         }
         class RepositorioPesquisaArquivos {
-            + cadastrarPesquisa() : void
+	        + cadastrarPesquisa(Pesquisa pesquisa) : void
         }
         class RepositorioPesquisadorEmpreendedorBDR {
-            + cadastrarPesquisa() : void
+	        + cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
         }
         class RepositorioPesquisadorEmpreendedorArquivos {
-            + cadastrarPesquisa() : void
+	        + cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
         }
-    }
-    PesquisadorEmpreendedor *-- Pesquisa
+	}
+
+    PesquisadorEmpreendedor "1..*" o-- "0..1" Pesquisa
+    Pesquisa "0..1" *-- "1..*" PesquisadorEmpreendedor
     FachadaSubsistemaServicoEmail ..|> ISubsistemaServicoEmail
     RepositorioPesquisaBDR ..|> IRepositorioPesquisa
     RepositorioPesquisaArquivos ..|> IRepositorioPesquisa
     RepositorioPesquisadorEmpreendedorBDR ..|> IRepositorioPesquisadorEmpreendedor
     RepositorioPesquisadorEmpreendedorArquivos ..|> IRepositorioPesquisadorEmpreendedor
-    CadastroPesquisadorEmpreendedor --> IRepositorioPesquisadorEmpreendedor 
-    CadastroPesquisa --> IRepositorioPesquisa
-    TelaRegistro --> Fachada
-    Fachada --> ControladorRegistro
-    ControladorRegistro --> CadastroPesquisadorEmpreendedor
-    ControladorRegistro --> CadastroPesquisa
-    CadastroPesquisadorEmpreendedor --> PesquisadorEmpreendedor
-    CadastroPesquisa --> Pesquisa
-    ControladorRegistro --> ISubsistemaServicoEmail
+    CadastroPesquisadorEmpreendedor "0" --> "1" IRepositorioPesquisadorEmpreendedor
+    CadastroPesquisa "0" --> "1" IRepositorioPesquisa
+    TelaRegistroPesquisadorEmpreendedor "0" --> "1" Fachada
+    Fachada "0" --> "1" ControladorRegistroPesquisadorEmpreendedor
+    ControladorRegistroPesquisadorEmpreendedor "0" --> "1" CadastroPesquisadorEmpreendedor
+    ControladorRegistroPesquisadorEmpreendedor "0" --> "1" CadastroPesquisa
+    CadastroPesquisadorEmpreendedor "0" --> "1" PesquisadorEmpreendedor
+    CadastroPesquisa "0" --> "1" Pesquisa
+    ControladorRegistroPesquisadorEmpreendedor "0" --> "1" ISubsistemaServicoEmail
+
+
+	note "Qual a relação entre IRepositorioPesquisa e Pesquisa? E RepositorioPesquisa e Pesquisa?"
+    note "Subsistema de email está correto? Fachada implementa interface e controlador tem uma associacao com interface."

@@ -1,55 +1,44 @@
 ---
 config:
-  theme: neo-dark
+  theme: mc
 ---
 sequenceDiagram
     actor PesquisadorEmpreendedor
-    participant TelaRegistro
-    participant ControladorRegistro
+    participant TelaRegistroPesquisadorEmpreendedor
+    participant ControladorRegistroPesquisadorEmpreendedor
     participant CadastroPesquisadorEmpreendedor
     participant CadastroPesquisa
-
-
-    PesquisadorEmpreendedor ->>+ TelaRegistro: abrirSecaoInfoPessoais()
-    TelaRegistro -->>- PesquisadorEmpreendedor: Seção de Informações Pessoais
-    PesquisadorEmpreendedor ->> TelaRegistro: preencherInfoPessoais(nomeCompleto, cpf, email, telefone, endereco)
-
-
-    PesquisadorEmpreendedor ->>+ TelaRegistro: abrirSecaoInfoAcademicas()
-    TelaRegistro -->>- PesquisadorEmpreendedor: Seção de Informações Academicas
-    PesquisadorEmpreendedor ->> TelaRegistro: preencherInfoAcademicas(detalhesGraduacao, detalhesPosgraduacao, expProfissional, curLates)
-
-
-    PesquisadorEmpreendedor ->>+ TelaRegistro: abrirSecaoInfoPesquisas()
-    TelaRegistro -->>- PesquisadorEmpreendedor: Seção de Informações Pesquisas
+    PesquisadorEmpreendedor ->>+ TelaRegistroPesquisadorEmpreendedor: abrirSecaoInfoPessoais()
+    TelaRegistroPesquisadorEmpreendedor -->>- PesquisadorEmpreendedor: Seção de Informações Pessoais
+    PesquisadorEmpreendedor ->> TelaRegistroPesquisadorEmpreendedor: Preencher as informações pessoais nomeCompleto, cpf, email, telefone e endereco
+    PesquisadorEmpreendedor ->>+ TelaRegistroPesquisadorEmpreendedor: abrirSecaoInfoAcademicas()
+    TelaRegistroPesquisadorEmpreendedor -->>- PesquisadorEmpreendedor: Seção de Informações Academicas
+    PesquisadorEmpreendedor ->> TelaRegistroPesquisadorEmpreendedor: Preencher as informações acadêmicas detalhesGraduacao, detalhesPosgraduacao, expProfissional e curLates
+    PesquisadorEmpreendedor ->>+ TelaRegistroPesquisadorEmpreendedor: abrirSecaoInfoPesquisas()
+    TelaRegistroPesquisadorEmpreendedor -->>- PesquisadorEmpreendedor: Seção de Informações Pesquisas
     loop Para cada pesquisa
-        PesquisadorEmpreendedor ->> TelaRegistro: preencherInfoPesquisa(titulo, descricao, area, maturidade, impactos, conexoesODS)
+        PesquisadorEmpreendedor ->> TelaRegistroPesquisadorEmpreendedor: Preencher as informações da pesquisa titulo, descricao, area, maturidade, impactos e conexoesODS
     end
-    
-    PesquisadorEmpreendedor ->>+ TelaRegistro: abrirSecaoInteresses()
-    TelaRegistro -->>- PesquisadorEmpreendedor: Seção de Capacidades e Interesses
-    PesquisadorEmpreendedor ->> TelaRegistro: preencherInteresses(expEmpreen, interesseEmpresa, interesseTransferenciaTecnologia, disponibilidadeCapacitacao)
-
-    PesquisadorEmpreendedor ->>+ TelaRegistro: abrirConsentimentoLGPD()
-    TelaRegistro -->>- PesquisadorEmpreendedor: Termo de Consentimento LGPD
-    PesquisadorEmpreendedor ->> TelaRegistro: consentirTermoLGPD()
-
-    
-    PesquisadorEmpreendedor ->>+ TelaRegistro: efetuarRegistro()
-    TelaRegistro ->>+ ControladorRegistro: validarDados(email, cpf)
-    ControladorRegistro -->>- TelaRegistro: resultado
-    deactivate TelaRegistro
-
+    PesquisadorEmpreendedor ->>+ TelaRegistroPesquisadorEmpreendedor: abrirSecaoInteresses()
+    TelaRegistroPesquisadorEmpreendedor -->>- PesquisadorEmpreendedor: Seção de Capacidades e Interesses
+    PesquisadorEmpreendedor ->> TelaRegistroPesquisadorEmpreendedor: Preencher as informações de capacidades e interesses expEmpreen, interesseEmpresa, interesseTransferenciaTecnologia e disponibilidadeCapacitacao
+    PesquisadorEmpreendedor ->>+ TelaRegistroPesquisadorEmpreendedor: abrirConsentimentoLGPD()
+    TelaRegistroPesquisadorEmpreendedor -->>- PesquisadorEmpreendedor: Termo de Consentimento LGPD
+    PesquisadorEmpreendedor ->> TelaRegistroPesquisadorEmpreendedor: Consentir com o termo de LGPD
+    PesquisadorEmpreendedor ->>+ TelaRegistroPesquisadorEmpreendedor: Efetua o registro
+    TelaRegistroPesquisadorEmpreendedor ->>+ ControladorRegistroPesquisadorEmpreendedor: validarDados(String email, String cpf)
+    ControladorRegistroPesquisadorEmpreendedor -->>- TelaRegistroPesquisadorEmpreendedor: resultado
+    deactivate TelaRegistroPesquisadorEmpreendedor
     alt Dados validos
-
-        TelaRegistro ->>+ ControladorRegistro: efetuarRegistro()
-        ControladorRegistro ->>+ CadastroPesquisadorEmpreendedor: cadastrarPesquisadorEmpreendedor()
-        ControladorRegistro ->>+ CadastroPesquisa: cadastrarPesquisa()
-        ControladorRegistro ->> ServicoEmail: enviarEmailConfirmacao(email)
-        deactivate ControladorRegistro
+        TelaRegistroPesquisadorEmpreendedor ->>+ ControladorRegistroPesquisadorEmpreendedor: efetuarRegistro(PesquisadorEmpreendedor pesquisadorEmpreendedor)
+        ControladorRegistroPesquisadorEmpreendedor ->>+ CadastroPesquisadorEmpreendedor: cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor)
+        loop Para cada pesquisa
+            CadastroPesquisadorEmpreendedor ->>+ CadastroPesquisa: cadastrarPesquisa(Pesquisa pesquisa)
+        end
+        ControladorRegistroPesquisadorEmpreendedor ->> ServicoEmail: enviarEmailConfirmacao(String email)
+        deactivate ControladorRegistroPesquisadorEmpreendedor
         deactivate CadastroPesquisadorEmpreendedor
         deactivate CadastroPesquisa
-
     else Dados invalidos
-        TelaRegistro ->> PesquisadorEmpreendedor:mostrarErro()
+        TelaRegistroPesquisadorEmpreendedor ->> PesquisadorEmpreendedor:mostrarErro(String mensagem)
     end

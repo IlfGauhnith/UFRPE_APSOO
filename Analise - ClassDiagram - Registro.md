@@ -1,10 +1,9 @@
 ---
 config:
-  theme: neo-dark
+  theme: mc
 ---
-
 classDiagram
-    class TelaRegistro { 
+    class TelaRegistroPesquisadorEmpreendedor { 
         <<boundary>> 
         + abrirSecaoInfoPessoais() : void
         + abrirSecaoInfoAcademicas() : void
@@ -12,23 +11,20 @@ classDiagram
         + abrirSecaoInteresses() : void
         + abrirConsentimentoLGPD() : void
         + efetuarRegistro() : void
-        + mostrarErro(mensagem) : void
+        + mostrarErro(String mensagem) : void
+        + efetuarRegistro(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
     }
     class ServicoEmail { 
         <<boundary>> 
-        + enviarEmailConfirmacao(email) : void
+        + enviarEmailConfirmacao(String email) : void
     }
-
-    class ControladorRegistro { 
+    class ControladorRegistroPesquisadorEmpreendedor { 
         <<control>> 
-        + validarDados(email, cpf) : boolean
+        + validarDados(String email, String cpf) : boolean
         + efetuarRegistro() : void
-
     }
-
     class PesquisadorEmpreendedor { 
         <<entity>>
-
         +String nomeCompleto
         +String cpf
         +String email
@@ -46,9 +42,8 @@ classDiagram
     }
     class CadastroPesquisadorEmpreendedor { 
         <<entity collection>> 
-        + cadastrarPesquisadorEmpreendedor() : void    
+        + cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void    
     }
-
     class Pesquisa { 
         <<entity>> 
         +String titulo
@@ -57,16 +52,17 @@ classDiagram
         +String maturidade
         +String impactos
         +String[] conexoesODS
+        +PesquisadorEmpreendedor[] pesquisadores
     }
     class CadastroPesquisa { 
         <<entity collection>> 
-        + cadastrarPesquisa() : void
+        + cadastrarPesquisa(Pesquisa pesquisa) : void
     }
-
-    TelaRegistro --> ControladorRegistro
-    ControladorRegistro --> CadastroPesquisadorEmpreendedor
-    ControladorRegistro --> CadastroPesquisa
-    ControladorRegistro --> ServicoEmail
-    PesquisadorEmpreendedor *-- Pesquisa
-    CadastroPesquisa o-- Pesquisa
-    CadastroPesquisadorEmpreendedor o-- PesquisadorEmpreendedor
+    TelaRegistroPesquisadorEmpreendedor "0" --> "1" ControladorRegistroPesquisadorEmpreendedor
+    ControladorRegistroPesquisadorEmpreendedor "0" --> "1" CadastroPesquisadorEmpreendedor
+    ControladorRegistroPesquisadorEmpreendedor "0" --> "1" CadastroPesquisa
+    ControladorRegistroPesquisadorEmpreendedor "0" --> "1" ServicoEmail
+    PesquisadorEmpreendedor "1..*" o-- "0..1" Pesquisa
+    Pesquisa "0..1" *-- "1..*" PesquisadorEmpreendedor
+    CadastroPesquisa "0" o-- "1" Pesquisa
+    CadastroPesquisadorEmpreendedor "0" o-- "1" PesquisadorEmpreendedor
