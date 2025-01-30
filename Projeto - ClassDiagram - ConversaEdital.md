@@ -5,6 +5,7 @@ config:
 ---
 classDiagram
     direction RL
+    
     namespace GUI {
         class TelaConversaEdital {
             + AbrirDetalhesEdital(int idEdital) : void
@@ -29,6 +30,21 @@ classDiagram
             + isEditalProcessado(int idEdital) : boolean
             + promptLLM(String pergunta, int idEdital) : String
             + exibirErro(String mensagem) : void
+            - ISubSistemaLLM subSistemaLLM
+            + setSubSistemaLLM(ISubSistemaLLM strategy) : void
+            + createMemento() : MementoConversa
+            + restoreMemento(MementoConversa memento) : void
+        }
+
+        class MementoConversa {
+            - String estadoInterno
+            + getEstado() : String
+        }
+
+        class HistoricoConversa {
+            + addMemento(MementoConversa m) : void
+            + getMemento(int index) : MementoConversa
+            - List<MementoConversa> mementos
         }
 
         class FachadaSubSistemaLLMGoogle {
@@ -66,11 +82,15 @@ classDiagram
 
     namespace Dados {
         class RepositorioEditalBDR {
+            + static getInstance() : RepositorioEditalBDR
+            - RepositorioEditalBDR()
             + buscarEdital(int idEdital) : Edital
             + isEditalProcessado(int idEdital) : boolean
         }
 
         class RepositorioEditalArquivo {
+            + static getInstance() : RepositorioEditalArquivo
+            - RepositorioEditalArquivo()
             + buscarEdital(int idEdital) : Edital
             + isEditalProcessado(int idEdital) : boolean
         }
@@ -87,3 +107,11 @@ classDiagram
     FachadaSubSistemaLLMOpenAI ..|> ISubSistemaLLM
     RepositorioEditalBDR ..|> IRepositorioEdital
     RepositorioEditalArquivo ..|> IRepositorioEdital
+
+    ControladorConversaEdital "1" --> "1..*" HistoricoConversa
+    ControladorConversaEdital "1" o-- "1..*" MementoConversa
+
+    note "Padrão Fachada na classe Fachada"
+    note "Padrão Singleton nos repositórios"
+    note "Padrão Strategy (ISubSistemaLLM)"
+    note "Padrão Memento: ControladorConversaEdital (Originator), MementoConversa (Memento), HistoricoConversa (Caretaker)"
