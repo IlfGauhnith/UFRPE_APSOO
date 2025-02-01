@@ -4,7 +4,7 @@ config:
   look: neo
 ---
 classDiagram
-    direction RL
+    direction TB
     
     namespace GUI {
         class TelaConversaEdital {
@@ -16,6 +16,9 @@ classDiagram
 
     namespace Negocio {
         class Fachada {
+            - static instance : Fachada
+            + static getInstance() : Fachada
+            - Fachada()
             + isEditalProcessado(int idEdital) : boolean
             + promptLLM(String pergunta, int idEdital) : String
             + exibirErro(String mensagem) : void
@@ -30,8 +33,7 @@ classDiagram
             + isEditalProcessado(int idEdital) : boolean
             + promptLLM(String pergunta, int idEdital) : String
             + exibirErro(String mensagem) : void
-            - ISubSistemaLLM subSistemaLLM
-            + setSubSistemaLLM(ISubSistemaLLM strategy) : void
+            + setAdapterSubSistemaLLM(ISubSistemaLLM adapter) : void
             + createMemento() : MementoConversa
             + restoreMemento(MementoConversa memento) : void
         }
@@ -44,7 +46,7 @@ classDiagram
         class HistoricoConversa {
             + addMemento(MementoConversa m) : void
             + getMemento(int index) : MementoConversa
-            - List<MementoConversa> mementos
+            - mementos : MementoConversa[]
         }
 
         class FachadaSubSistemaLLMGoogle {
@@ -66,6 +68,21 @@ classDiagram
             + buscarEdital(int idEdital) : Edital
             + isEditalProcessado(int idEdital) : boolean
         }
+
+        class AdapterLLMGoogle {
+            + validarPerguntaContexto(String pergunta, String contexto) : boolean
+            + processarPergunta(String pergunta, String contexto) : String
+        }
+
+        class AdapterLLMAmazon {
+            + validarPerguntaContexto(String pergunta, String contexto) : boolean
+            + processarPergunta(String pergunta, String contexto) : String
+        }
+
+        class AdapterLLMOpenAI {
+            + validarPerguntaContexto(String pergunta, String contexto) : boolean
+            + processarPergunta(String pergunta, String contexto) : String
+        }
     }
 
     namespace Interfaces {
@@ -82,6 +99,7 @@ classDiagram
 
     namespace Dados {
         class RepositorioEditalBDR {
+            - static instance : RepositorioEditalBDR
             + static getInstance() : RepositorioEditalBDR
             - RepositorioEditalBDR()
             + buscarEdital(int idEdital) : Edital
@@ -89,6 +107,7 @@ classDiagram
         }
 
         class RepositorioEditalArquivo {
+            - static instance : RepositorioEditalArquivo
             + static getInstance() : RepositorioEditalArquivo
             - RepositorioEditalArquivo()
             + buscarEdital(int idEdital) : Edital
@@ -100,18 +119,22 @@ classDiagram
     Fachada "0" --> "1" ControladorConversaEdital
     ControladorConversaEdital "0" --> CadastroEdital
     ControladorConversaEdital "0" --> "1" ISubSistemaLLM
-    CadastroEdital "0" --> "1" Edital
+    ControladorConversaEdital ..> ISubSistemaLLM
+    CadastroEdital ..> Edital
     CadastroEdital "0" --> "1" IRepositorioEdital
-    FachadaSubSistemaLLMGoogle ..|> ISubSistemaLLM
-    FachadaSubSistemaLLMAmazon ..|> ISubSistemaLLM
-    FachadaSubSistemaLLMOpenAI ..|> ISubSistemaLLM
+    AdapterLLMGoogle ..|> ISubSistemaLLM
+    AdapterLLMAmazon ..|> ISubSistemaLLM
+    AdapterLLMOpenAI ..|> ISubSistemaLLM
+    IRepositorioEdital ..> Edital
+    RepositorioEditalBDR ..> Edital
+    RepositorioEditalArquivo ..> Edital
     RepositorioEditalBDR ..|> IRepositorioEdital
     RepositorioEditalArquivo ..|> IRepositorioEdital
 
-    ControladorConversaEdital "1" --> "1..*" HistoricoConversa
-    ControladorConversaEdital "1" o-- "1..*" MementoConversa
-
+    ControladorConversaEdital "0" --> "1" HistoricoConversa
+    ControladorConversaEdital ..> MementoConversa
+    HistoricoConversa "0" o-- "1..*" MementoConversa
     note "Padrão Fachada na classe Fachada"
     note "Padrão Singleton nos repositórios"
-    note "Padrão Strategy (ISubSistemaLLM)"
+    note "Padrão Adapter (ISubSistemaLLM) para adaptar diferentes APIs de LLMs (Google, Amazon, OpenAI)"
     note "Padrão Memento: ControladorConversaEdital (Originator), MementoConversa (Memento), HistoricoConversa (Caretaker)"
