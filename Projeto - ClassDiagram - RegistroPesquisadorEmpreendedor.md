@@ -19,6 +19,9 @@ direction LR
 	}
 	namespace Negocio {
         class Fachada {
+            - static instance : Fachada
+            - Fachada()
+            + static getInstance() : Fachada
 	        + efetuarRegistro(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
 	        + mostrarErro(mensagem) : void
         }
@@ -104,30 +107,27 @@ direction LR
         }
 	}
 	namespace Dados {
-        class RepositorioPesquisaProxy {
-            + cadastrarPesquisa(Pesquisa pesquisa) : void
-        }
-
-        class RepositorioPesquisadorEmpreendedorProxy {
-            + cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
-        }
 
         class RepositorioPesquisaBDR {
+            - static instance : RepositorioPesquisaBDR
 	        + static getInstance() : RepositorioPesquisaBDR
             - RepositorioPesquisaBDR()
 	        + cadastrarPesquisa(Pesquisa pesquisa) : void
         }
         class RepositorioPesquisaArquivos {
+            - static instance : RepositorioPesquisaArquivos
 	        + static getInstance() : RepositorioPesquisaArquivos
 	        - RepositorioPesquisaArquivos()
             + cadastrarPesquisa(Pesquisa pesquisa) : void
         }
         class RepositorioPesquisadorEmpreendedorBDR {
+            - static instance : RepositorioPesquisadorEmpreendedorBDR
 	        + static getInstance() : RepositorioPesquisadorEmpreendedorBDR
 	        - RepositorioPesquisadorEmpreendedorBDR()
             + cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
         }
         class RepositorioPesquisadorEmpreendedorArquivos {
+            - static instance : RepositorioPesquisadorEmpreendedorArquivos
 	        + static getInstance() : RepositorioPesquisadorEmpreendedorArquivos
 	        - RepositorioPesquisadorEmpreendedorArquivos()
             + cadastrarPesquisadorEmpreendedor(PesquisadorEmpreendedor pesquisadorEmpreendedor) : void
@@ -141,37 +141,32 @@ direction LR
     
     FachadaSubsistemaServicoEmail ..|> ISubsistemaServicoEmail
 
-    RepositorioPesquisaProxy ..|> IRepositorioPesquisa
-    RepositorioPesquisadorEmpreendedorProxy ..|> IRepositorioPesquisadorEmpreendedor
-    RepositorioPesquisaProxy ..> RepositorioPesquisaBDR
-    RepositorioPesquisadorEmpreendedorProxy ..> RepositorioPesquisadorEmpreendedorBDR
-    RepositorioPesquisaProxy ..> RepositorioPesquisaArquivos
-    RepositorioPesquisadorEmpreendedorProxy ..> RepositorioPesquisadorEmpreendedorArquivos
     RepositorioPesquisaBDR ..|> IRepositorioPesquisa
     RepositorioPesquisaArquivos ..|> IRepositorioPesquisa
     RepositorioPesquisadorEmpreendedorBDR ..|> IRepositorioPesquisadorEmpreendedor
     RepositorioPesquisadorEmpreendedorArquivos ..|> IRepositorioPesquisadorEmpreendedor
 
+    IRepositorioPesquisa ..> Pesquisa
+    IRepositorioPesquisadorEmpreendedor ..> PesquisadorEmpreendedor
+    
     CadastroPesquisadorEmpreendedor "0" --> "1" IRepositorioPesquisadorEmpreendedor
     CadastroPesquisa "0" --> "1" IRepositorioPesquisa
     
     TelaRegistroPesquisadorEmpreendedor "0" --> "1" Fachada
+    TelaRegistroPesquisadorEmpreendedor ..> PesquisadorEmpreendedor
     Fachada "0" --> "1" ControladorRegistroPesquisadorEmpreendedor
+    Fachada ..> PesquisadorEmpreendedor
+    Fachada ..> Pesquisa
+    
     ControladorRegistroPesquisadorEmpreendedor "0" --> "1" CadastroPesquisadorEmpreendedor
     ControladorRegistroPesquisadorEmpreendedor "0" --> "1" CadastroPesquisa
-    CadastroPesquisadorEmpreendedor "0" --> "1" PesquisadorEmpreendedor
+    CadastroPesquisadorEmpreendedor ..> PesquisadorEmpreendedor
     CadastroPesquisadorEmpreendedor "0" --> "1" PesquisadorEmpreendedorBuilder
-    CadastroPesquisa "0" --> "1" Pesquisa
+    CadastroPesquisa ..> Pesquisa
     CadastroPesquisa "0" --> "1" PesquisaBuilder
     ControladorRegistroPesquisadorEmpreendedor "0" --> "1" ISubsistemaServicoEmail
 
 
-	note "Qual a relação entre IRepositorioPesquisa e Pesquisa? E RepositorioPesquisa e Pesquisa?"
-    note "Subsistema de email está correto? Fachada implementa interface e controlador tem uma associacao com interface."
-    note "A relação correta entre Cadastro e sua Entidade é de dependência ou associação?"
-    note "Padrão Fachada na classe Fachada."
-    note "Padrão Singleton nos repositórios."
+	note "Padrão Fachada na classe Fachada."
+    note "Padrão Singleton nos repositórios e Fachada."
     note "Padrão Builder para PesquisadorEmpreendedor e Pesquisa."
-    note "Padrão Proxy nos repositórios para melhorar desempenho ao gerenciar um cache e para gerar logs."
-
-

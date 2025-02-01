@@ -46,7 +46,7 @@ classDiagram
         class HistoricoConversa {
             + addMemento(MementoConversa m) : void
             + getMemento(int index) : MementoConversa
-            - mementos : MementoConversa[]
+            - MementoConversa[] : mementos
         }
 
         class FachadaSubSistemaLLMGoogle {
@@ -135,6 +135,6 @@ classDiagram
     ControladorConversaEdital ..> MementoConversa
     HistoricoConversa "0" o-- "1..*" MementoConversa
     note "Padrão Fachada na classe Fachada"
-    note "Padrão Singleton nos repositórios"
+    note "Padrão Singleton nos repositórios e Fachada"
     note "Padrão Adapter (ISubSistemaLLM) para adaptar diferentes APIs de LLMs (Google, Amazon, OpenAI)"
     note "Padrão Memento: ControladorConversaEdital (Originator), MementoConversa (Memento), HistoricoConversa (Caretaker)"
